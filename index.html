@@ -302,8 +302,8 @@
     ctx.setLineDash([]);
 
     ctx.fillStyle = '#fff';
-    ctx.fillText(`x=${P.x.toFixed(1)} m`, pt.cx - 28, hgt - margin + 20);
-    ctx.fillText(`y=${Math.max(0,P.y).toFixed(1)} m`, margin - 30, pt.cy - 6);
+    ctx.fillText(`x=${P.x.toFixed(1)} m`, pt.cx - 28, hgt - margin - 15);
+    ctx.fillText(`y=${Math.max(0,P.y).toFixed(1)} m`, margin + 15, pt.cy - 6);
 
     const zoom = scale.value / 100;
     const f = Math.max(8, (100 * zoom) * 0.18);
@@ -362,6 +362,7 @@
 </script>
 </body>
 </html>
+
 
 
 
