@@ -27,7 +27,7 @@
     }
     canvas {
       width:100%;
-      height:600px;
+      height:608px;
       background:#1a1a1a; /* Negro más suave que el fondo */
       border-radius:10px;
     }
@@ -92,8 +92,11 @@
     <input id="scale" type="range" min="1" max="200" step="1" value="15">
     <button class="gray" id="fit" title="Ajustar a pantalla">Ajustar a pantalla</button>
 
-    <label style="margin-top:8px"><input type="checkbox" id="showPrediction" checked> Mostrar predicció teòrica</label>
-    <label><input type="checkbox" id="showTrail" checked> Mostrar rastre</label>
+  <div class="checkbox-group">
+  <label>
+  <input type="checkbox" id="showPrediction" checked> Mostrar predicció teòrica                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <input type="checkbox" id="showTrail" checked> Mostrar rastre</label>
+  </div>
 
     <div style="margin-top:8px">
       <button class="start" id="start">Iniciar</button>
