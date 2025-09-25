@@ -237,7 +237,7 @@
     ctx.strokeStyle='rgba(255,255,255,0.4)'; ctx.lineWidth = 2;
     ctx.beginPath(); ctx.moveTo(0, hgt - margin); ctx.lineTo(wid, hgt - margin); ctx.stroke();
     ctx.beginPath(); ctx.moveTo(margin, 0); ctx.lineTo(margin, hgt); ctx.stroke();
-    ctx.font = '12px sans-serif'; ctx.fillStyle = '#fff';
+    ctx.font = '15px sans-serif'; ctx.fillStyle = '#fff';
     const stepX = Math.max(1, Math.ceil(maxX/10)), stepY = Math.max(1, Math.ceil(maxY/10));
     for(let x = 0; x <= maxX; x += stepX){
       const p = m2c(x, 0);
@@ -366,4 +366,5 @@
 })();
 </script>
 </body>
+
 </html>
