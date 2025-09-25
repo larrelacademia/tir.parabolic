@@ -26,10 +26,11 @@
       border-radius:12px;
     }
     canvas {
-      width:100%;
-      height:608px;
-      background:#1a1a1a; /* Negro más suave que el fondo */
-      border-radius:10px;
+      width: 100%;
+      aspect-ratio: 2 / 1;  /* mantiene proporción original */
+      background: #1a1a1a;
+      border-radius: 10px;
+      display: block;
     }
     label {
       display:block;
@@ -40,8 +41,6 @@
     input[type=range] {
       width:100%;
     }
-    
-    
     .pill {
       background:rgba(89, 186, 186,0.2); /* SULU con baja saturación */
       padding:6px 10px;
@@ -83,22 +82,28 @@
   
     <h2>Simulador de tir parabòlic</h2>
     <label>Velocitat inicial: <span id="vVal">25</span> m/s</label>
-    <input id="v" type="range" min="0" max="100" step="0.5" value="25">
+    <input id="v" type="range" min="0" max="50" step="0.5" value="25">
     <label>Angle inicial: <span id="angleVal">45</span>°</label>
     <input id="angle" type="range" min="0" max="90" step="0.5" value="45">
     <label>Alçada inicial: <span id="hVal">0</span> m</label>
-    <input id="h" type="range" min="0" max="100" step="1" value="0">
+    <input id="h" type="range" min="0" max="20" step="0.1" value="0">
     <label>Gravetat: <span id="gVal">9.81</span> m/s²</label>
-    <input id="g" type="range" min="0.5" max="20" step="0.1" value="9.8">
+    <input id="g" type="range" min="0.5" max="20" step="0.1" value="9.81">
     <label>Zoom: <span id="scaleVal">100</span>%</label>
-    <input id="scale" type="range" min="1" max="200" step="1" value="15">
+    <input id="scale" type="range" min="1" max="250" step="1" value="15">
     <button class="gray" id="fit" title="Ajustar a pantalla">Ajustar a pantalla</button>
 
-  <div class="checkbox-group">
-  <label>
-  <input type="checkbox" id="showPrediction" checked> Mostrar predicció teòrica                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-  <input type="checkbox" id="showTrail" checked> Mostrar rastre</label>
-  </div>
+    <!-- 🔹 NUEVO SLIDER DE VELOCIDAD DEL TIEMPO -->
+    <label>Velocitat del temps: <span id="timeScaleVal">1.00</span>x</label>
+    <input id="timeScale" type="range" min="0.1" max="2" step="0.01" value="1">
+
+    <div class="checkbox-group">
+      <label>
+        <input type="checkbox" id="showPrediction" checked> Mostrar predicció teòrica                 
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <input type="checkbox" id="showTrail" checked> Mostrar rastre
+      </label>
+    </div>
 
     <div style="margin-top:8px">
       <button class="start" id="start">Iniciar</button>
@@ -135,17 +140,20 @@
   const start = document.getElementById('start'), pause = document.getElementById('pause'), reset = document.getElementById('reset'), timeSlider = document.getElementById('timeSlider');
   const tR = document.getElementById('t'), xR = document.getElementById('x'), yR = document.getElementById('y'), vR = document.getElementById('vmod'), vxR = document.getElementById('vx'), vyR = document.getElementById('vy'), thetaR = document.getElementById('theta'), timeLabel = document.getElementById('timeLabel');
 
+  // 🔹 NUEVAS VARIABLES PARA VELOCIDAD DEL TIEMPO
+  const timeScale = document.getElementById('timeScale'), timeScaleVal = document.getElementById('timeScaleVal');
+
   let trailPoints = [];
 
   function upd(){
     vVal.textContent = Number(v.value).toFixed(1);
     angleVal.textContent = Number(angle.value).toFixed(1);
     hVal.textContent = Number(h.value).toFixed(1);
-    gVal.textContent = Number(g.value);
+    gVal.textContent = Number(g.value).toFixed(1);
     scaleVal.textContent = Number(scale.value).toFixed(0);
+    timeScaleVal.textContent = Number(timeScale.value).toFixed(2);
   }
 
-  // si cambias el zoom manualmente, limpia el rastro para evitar puntos desalineados
   function onParamChange(){
     computeMaxT();
     drawScene(curT);
@@ -153,6 +161,7 @@
 
   [v, angle, h, g].forEach(e => e.addEventListener('input', ()=>{ upd(); onParamChange(); }));
   scale.addEventListener('input', ()=>{ trailPoints = []; upd(); onParamChange(); });
+  timeScale.addEventListener('input', upd);
 
   upd();
 
@@ -177,14 +186,12 @@
     return Math.max(r1, r2);
   }
 
-  // metros -> coordenadas canvas (píxeles)
   function m2c(x,y){
     const zoom = scale.value / 100;
     const pxPerMeter = 100 * zoom;
     return { cx: margin + x * pxPerMeter, cy: hgt - margin - y * pxPerMeter };
   }
 
-  // dibuja flecha con cabeza
   function drawArrow(x1,y1,x2,y2,color){
     ctx.save();
     ctx.strokeStyle = color; ctx.fillStyle = color; ctx.lineWidth = 2;
@@ -198,11 +205,9 @@
     ctx.restore();
   }
 
-  // calcula zoom ideal para encajar la trayectoria (en %)
   function autoZoom(){
     const p = { v0: +v.value, ang: toRad(+angle.value), h0: +h.value, g: +g.value };
     const T = flightTime(p);
-    // obtén bounds muestreando la trayectoria
     let maxX = 0, maxY = Math.max(0, p.h0);
     const samples = 200;
     for(let i=0;i<=samples;i++){
@@ -210,13 +215,11 @@
       if(P.x > maxX) maxX = P.x;
       if(P.y > maxY) maxY = P.y;
     }
-    // evitar división por cero: si maxX o maxY muy pequeños, considerar 1 metro mínimo
     const safeMaxX = Math.max(1e-6, maxX);
     const safeMaxY = Math.max(1e-6, maxY);
     const zoomX = (wid - 2*margin) / (safeMaxX * 100);
     const zoomY = (hgt - 2*margin) / (safeMaxY * 100);
     let result = Math.min(zoomX, zoomY) * 100;
-    // clamp con límites del slider
     const minZ = Number(scale.min), maxZ = Number(scale.max);
     if (!isFinite(result)) result = minZ;
     result = Math.max(minZ, Math.min(maxZ, result));
@@ -224,7 +227,7 @@
   }
 
   fit.onclick = () => {
-    trailPoints = []; // limpiar rastro porque cambia la escala
+    trailPoints = [];
     const z = autoZoom();
     scale.value = Math.round(z);
     upd();
@@ -272,7 +275,6 @@
     const p = { v0: +v.value, ang: toRad(+angle.value), h0: +h.value, g: +g.value };
     const T = flightTime(p);
 
-    // calculamos máximos para ejes y para fit preview
     let maxX = 0, maxY = Math.max(0, p.h0);
     for(let i=0;i<=100;i++){
       const P = pos(T * i / 100, p);
@@ -280,55 +282,44 @@
       if(P.y > maxY) maxY = P.y;
     }
 
-    // ejes y grillas
     drawAxes(maxX * 1.1, Math.max(maxY * 1.1, 1));
-
-    // predicción teórica
     if(showPrediction.checked) drawPrediction(p, T);
 
-    // posición actual
     const P = pos(t, p);
     const pt = m2c(P.x, Math.max(0, P.y));
 
-    // rastro (trail) — rastro almacenado como puntos en píxeles (se limpia si cambias zoom)
     if(showTrail.checked && trailPoints.length > 0){
       ctx.strokeStyle='rgba(255, 61, 120,0.4)'; ctx.lineWidth=2; ctx.beginPath();
       trailPoints.forEach((q,i)=>{ if(i===0) ctx.moveTo(q.cx,q.cy); else ctx.lineTo(q.cx,q.cy); });
       ctx.stroke();
     }
 
-    // proyectil
     ctx.beginPath(); ctx.arc(pt.cx, pt.cy, 7, 0, Math.PI*2); ctx.fillStyle = '#38bdf8'; ctx.fill();
 
-    // guías hasta ejes
     ctx.setLineDash([4,4]); ctx.strokeStyle='rgba(255,255,255,0.3)';
     ctx.beginPath(); ctx.moveTo(pt.cx, pt.cy); ctx.lineTo(pt.cx, hgt - margin); ctx.stroke();
     ctx.beginPath(); ctx.moveTo(pt.cx, pt.cy); ctx.lineTo(margin, pt.cy); ctx.stroke();
     ctx.setLineDash([]);
 
-    // etiquetas x,y junto al proyectil
     ctx.fillStyle = '#fff';
     ctx.fillText(`x=${P.x.toFixed(1)} m`, pt.cx - 28, hgt - margin + 20);
     ctx.fillText(`y=${Math.max(0,P.y).toFixed(1)} m`, margin - 30, pt.cy - 6);
 
-    // vectores de velocidad (escala dependiente del zoom)
     const zoom = scale.value / 100;
-    const f = Math.max(8, (100 * zoom) * 0.18); // factor para longitud de flechas
+    const f = Math.max(8, (100 * zoom) * 0.18);
     const vxEnd = { x: pt.cx + P.vx * f, y: pt.cy };
     const vyEnd = { x: pt.cx, y: pt.cy - P.vy * f };
     const vEnd  = { x: pt.cx + P.vx * f, y: pt.cy - P.vy * f  };
 
-    drawArrow(pt.cx, pt.cy, vxEnd.x, vxEnd.y, '#d5f476'); // rojo Vx
-    drawArrow(pt.cx, pt.cy, vyEnd.x, vyEnd.y, '#00a874'); // verde Vy
-    drawArrow(pt.cx, pt.cy, vEnd.x, vEnd.y, '#ff3d78');   // azul |v|
+    drawArrow(pt.cx, pt.cy, vxEnd.x, vxEnd.y, '#d5f476');
+    drawArrow(pt.cx, pt.cy, vyEnd.x, vyEnd.y, '#00a874');
+    drawArrow(pt.cx, pt.cy, vEnd.x, vEnd.y, '#ff3d78');
 
-    // etiquetas de los vectores cerca de sus puntas
     ctx.font = '15px sans-serif';
     ctx.fillStyle = '#d5f476'; ctx.fillText(`${P.vx.toFixed(1)} m/s`, vxEnd.x + 6, vxEnd.y + 5);
     ctx.fillStyle = '#00a874'; ctx.fillText(`${P.vy.toFixed(1)} m/s`, vyEnd.x + 6, vyEnd.y - 2);
     ctx.fillStyle = '#ff3d78'; ctx.fillText(`${P.speed.toFixed(1)} m/s`, vEnd.x + 6, vEnd.y - 2);
 
-    // actualizar lecturas en panel
     tR.textContent = t.toFixed(2);
     xR.textContent = P.x.toFixed(2);
     yR.textContent = Math.max(0, P.y).toFixed(2);
@@ -345,7 +336,7 @@
   function loop(ts){
     if(!running) return;
     if(!last) last = ts;
-    const dt = (ts - last)/1000;
+    const dt = (ts - last)/1000 * Number(timeScale.value);  // 🔹 factor de velocidad del tiempo
     last = ts;
     simT += dt;
     if(simT > simMax){ simT = simMax; running = false; }
@@ -364,16 +355,15 @@
   reset.onclick = () => { running = false; simT = 0; trailPoints = []; drawScene(0); timeSlider.value = 0; };
   timeSlider.oninput = e => { simT = +e.target.value; curT = simT; drawScene(simT); };
 
-  function computeMaxT(){ const p = { v0: +v.value, ang: toRad(+angle.value), h0: +h.value, g: +g.value }; simMax = flightTime(p); timeSlider.max = simMax.toFixed(3); }
-
-  // al cargar por primera vez
+  computeMaxT();
   drawScene(0);
 
 })();
 </script>
 </body>
-
 </html>
+
+
 
 
 
