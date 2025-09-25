@@ -318,6 +318,7 @@
     drawArrow(pt.cx, pt.cy, vEnd.x, vEnd.y, '#ff3d78');   // azul |v|
 
     // etiquetas de los vectores cerca de sus puntas
+    ctx.font = '15px sans-serif';
     ctx.fillStyle = '#d5f476'; ctx.fillText(`${P.vx.toFixed(1)} m/s`, vxEnd.x + 6, vxEnd.y + 5);
     ctx.fillStyle = '#00a874'; ctx.fillText(`${P.vy.toFixed(1)} m/s`, vyEnd.x + 6, vyEnd.y - 2);
     ctx.fillStyle = '#ff3d78'; ctx.fillText(`${P.speed.toFixed(1)} m/s`, vEnd.x + 6, vEnd.y - 2);
@@ -368,3 +369,4 @@
 </body>
 
 </html>
+
