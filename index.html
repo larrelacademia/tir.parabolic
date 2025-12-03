@@ -1,378 +1,640 @@
-<!doctype html>
-<html lang="es">
+<!DOCTYPE html>
+<html lang="ca">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Simulador tir parabòlic</title>
+  <meta charset="UTF-8">
+  <title>Simulador de tir parabòlic</title>
   <style>
+    :root {
+      --bg: #0b1226;
+      --panel: #0e1530;
+      --accent: #60a5fa;
+      --accent2: #34d399;
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --danger: #f97373;
+      --border: #334155;
+    }
+    * { box-sizing: border-box; }
+
     body {
-      margin:0;
-      background:#0D0D0D; /* NEGRO */
-      color:#f9f8ef; /* ECRU WHITE */
-      font-family:system-ui;
-      display:flex;
-      gap:20px;
-      padding:18px;
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle at top, #111827 0, #020617 40%);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      color: var(--text);
+      padding: 16px;
     }
-    .container {
-      display:grid;
-      grid-template-columns:420px 1fr;
-      gap:18px;
-      width:100%;
-    }
-    .panel {
-      background:rgba(249,248,239,0.05); /* ECRU WHITE suave */
-      padding:16px;
-      border-radius:12px;
-    }
-    canvas {
+
+    .card {
+      background: rgba(15, 23, 42, 0.95);
+      border-radius: 16px;
+      padding: 20px 24px 24px;
+      max-width: 1100px;
       width: 100%;
-      aspect-ratio: 2 / 1;  /* mantiene proporción original */
-      background: #1a1a1a;
+      box-shadow: 0 20px 45px rgba(0,0,0,0.5);
+      border: 1px solid rgba(148, 163, 184, 0.25);
+    }
+
+    .logo-wrap {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 12px;
+    }
+    .logo-wrap img {
+      max-width: 180px;
+      width: 100%;
+      height: auto;
+      display: block;
+      opacity: 0.95;
+      transition: opacity 0.15s ease-out, transform 0.15s ease-out;
+    }
+    .logo-wrap img:hover {
+      opacity: 1;
+      transform: translateY(-1px);
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 1.4rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    h1 span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 26px;
+      height: 26px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 30% 30%, var(--accent2), var(--accent));
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: #0b1120;
+    }
+    .subtitle {
+      margin: 0 0 16px;
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.78rem;
+      padding: 4px 9px;
+      border-radius: 999px;
+      background: rgba(15, 118, 110, 0.18);
+      color: #6ee7b7;
+      margin-bottom: 8px;
+    }
+
+    .controls-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px 18px;
+      align-items: flex-end;
+      margin-bottom: 10px;
+    }
+
+    label {
+      display: block;
+      font-size: 0.9rem;
+      margin-bottom: 4px;
+      color: var(--muted);
+    }
+    input[type="number"] {
+      width: 100%;
+      padding: 8px 10px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: #020617;
+      color: #e5e7eb;
+      font-size: 0.9rem;
+      outline: none;
+      transition: border 0.15s, box-shadow 0.15s, background 0.15s;
+    }
+    input[type="number"]:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px rgba(96,165,250,0.6);
+      background: #020617;
+    }
+    input[type="range"] {
+      width: 100%;
+    }
+
+    .time-scale-wrap {
+      max-width: 220px;
+    }
+    .time-scale-wrap label {
+      margin-bottom: 2px;
+    }
+
+    .checkbox-inline {
+      font-size: 0.85rem;
+      color: var(--muted);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px 18px;
+      align-items: center;
+    }
+
+    button {
+      border-radius: 999px;
+      border: none;
+      padding: 8px 16px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: transform 0.08s ease-out, box-shadow 0.12s ease-out, background 0.15s, border 0.15s;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), #3b82f6);
+      color: #0b1120;
+      box-shadow: 0 10px 20px rgba(37, 99, 235, 0.35);
+    }
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 14px 26px rgba(37, 99, 235, 0.45);
+    }
+    .btn-ghost {
+      background: transparent;
+      color: var(--text);
+      border: 1px solid rgba(148, 163, 184, 0.4);
+    }
+    .btn-ghost:hover {
+      background: rgba(15,23,42,0.9);
+      transform: translateY(-1px);
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .bottom-row {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 20px;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .graph-card {
+      border-radius: 12px;
+      padding: 10px 12px 12px;
+      margin-top: 14px;
+      background: rgba(15,23,42,0.9);
+      border: 1px solid rgba(148, 163, 184, 0.35);
+    }
+    #stage {
+      width: 100%;
+      height: auto;
+      max-height: 650px;       /* 🔹 una mica més alt */
       border-radius: 10px;
+      border: 1px solid rgba(148,163,184,0.4);
+      background: #020617;
       display: block;
     }
-    label {
-      display:block;
-      margin-top:10px;
-      font-size:15px;
-      color:#f9f8ef; /* GIGAS */
+
+    .time-block {
+      margin-top: 10px;
     }
-    input[type=range] {
-      width:100%;
+    .time-block label {
+      margin-bottom: 4px;
     }
-    .pill {
-      background:rgba(89, 186, 186,0.2); /* SULU con baja saturación */
-      padding:6px 10px;
-      border-radius:12px;
-      font-size:13px;
-    }
+
     .readouts {
-      display:flex;
-      gap:8px;
-      flex-wrap:wrap;
-      margin-top:10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 10px;
     }
-    button {
-      padding:6px 12px;
-      border-radius:8px;
-      cursor:pointer;
-      border:none;
+    .readout-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.8rem;
+      padding: 4px 9px;
+      border-radius: 999px;
+      background: rgba(30, 64, 175, 0.3);
+      color: #e5e7eb;
     }
-    button.start {
-      background:#277373; /* SASQUATCH SOCKS */
-      color:#f9f8ef; /* ECRU WHITE */
+    .readout-pill span.label {
+      color: var(--muted);
     }
-    button.gray {
-      background:transparent;
-      color:#f9f8efcc; /* ECRU WHITE suavizado */
-      border:1px solid #448282; /* JADE */
+    .readout-pill span.value {
+      font-weight: 600;
+      color: #e5e7eb;
+    }
+
+    @media (max-width: 768px) {
+      h1 { font-size: 1.2rem; }
+      .bottom-row { flex-direction: column; align-items: flex-start; }
     }
   </style>
 </head>
 <body>
-<div class="container">
-   <div class="panel">
-     <a href="https://www.larrelacademia.cat/" target="_blank">
-      <img src="https://i.ibb.co/Q7YJTwgn/PRINCIPAL-BEIGE.png" 
-         alt="PRINCIPAL-BEIGE" 
-         style="width:200px; display:block; margin:0 auto 12px;" 
-         border="0" />
-       </a>
-  
-    <h2>Simulador de tir parabòlic</h2>
-    <label>Velocitat inicial: <span id="vVal">25</span> m/s</label>
-    <input id="v" type="range" min="0" max="50" step="0.5" value="25">
-    <label>Angle inicial: <span id="angleVal">45</span>°</label>
-    <input id="angle" type="range" min="0" max="90" step="0.5" value="45">
-    <label>Alçada inicial: <span id="hVal">0</span> m</label>
-    <input id="h" type="range" min="0" max="100" step="0.5" value="0">
-    <label>Gravetat: <span id="gVal">9.81</span> m/s²</label>
-    <input id="g" type="range" min="0.5" max="20" step="0.1" value="9.81">
-    <label>Zoom: <span id="scaleVal">100</span>%</label>
-    <input id="scale" type="range" min="1" max="250" step="1" value="15">
-    <button class="gray" id="fit" title="Ajustar a pantalla">Ajustar a pantalla</button>
-
-    <!-- 🔹 NUEVO SLIDER DE VELOCIDAD DEL TIEMPO -->
-    <label>Velocitat del temps: <span id="timeScaleVal">1.00</span>x</label>
-    <input id="timeScale" type="range" min="0.01" max="1.5" step="0.01" value="1">
-
-    <div class="checkbox-group">
-      <label>
-        <input type="checkbox" id="showPrediction" checked> Mostrar predicció teòrica                 
-        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-        <input type="checkbox" id="showTrail" checked> Mostrar rastre
-      </label>
+  <div class="card">
+    <div class="logo-wrap">
+      <a href="https://www.larrelacademia.cat/" target="_blank" rel="noopener noreferrer">
+        <img src="https://i.ibb.co/Q7YJTwgn/PRINCIPAL-BEIGE.png" alt="L'Arrel Acadèmia - Logo" />
+      </a>
     </div>
 
-    <div style="margin-top:8px">
-      <button class="start" id="start">Iniciar</button>
-      <button class="gray" id="pause">Pausar</button>
-      <button class="gray" id="reset">Reiniciar</button>
+    <h1>
+      <span>T</span>
+      Simulador de tir parabòlic
+    </h1>
+    <p class="subtitle">
+      Introdueix la <strong>velocitat inicial</strong>, l’<strong>angle</strong> i l’<strong>alçada inicial</strong>.
+      El simulador representa la trajectòria, els vectors de velocitat i mostra les magnituds instantànies.
+    </p>
+
+    <div class="pill">
+      ⚙️ Paràmetres inicials del tir
+    </div>
+    <div class="controls-grid">
+      <div>
+        <label>Velocitat inicial (m/s):</label>
+        <input id="v" type="number" min="0" max="300" step="0.1" value="25">
+      </div>
+
+      <div>
+        <label>Angle inicial (°):</label>
+        <input id="angle" type="number" min="0" max="90" step="0.1" value="45">
+      </div>
+
+      <div>
+        <label>Alçada inicial (m):</label>
+        <input id="h" type="number" min="0" max="1000" step="0.1" value="0">
+      </div>
+
+      <div class="time-scale-wrap">
+        <label>Velocitat de simulació: <span id="timeScaleVal">1.00</span>x</label>
+        <input id="timeScale" type="range" min="0.01" max="2" step="0.01" value="1">
+      </div>
     </div>
 
-    <label style="margin-top:12px">Temps (s): <span id="timeLabel">0.00</span></label>
-    <input id="timeSlider" type="range" min="0" max="1" value="0" step="0.001">
+    <div class="pill">
+      📈 Gràfic de la trajectòria
+    </div>
+    <div class="graph-card">
+      <!-- 🔹 Canvas una mica més gran -->
+      <canvas id="stage" width="1440" height="720"></canvas>
 
-    <div class="readouts">
-      <div class="pill">t=<span id="t">0.00</span>s</div>
-      <div class="pill">x=<span id="x">0.00</span>m</div>
-      <div class="pill">y=<span id="y">0.00</span>m</div>
-      <div class="pill">|v|=<span id="vmod">0.00</span>m/s</div>
-      <div class="pill">Vx=<span id="vx">0.00</span>m/s</div>
-      <div class="pill">Vy=<span id="vy">0.00</span>m/s</div>
-      <div class="pill">θ=<span id="theta">0.00</span>°</div>
+      <div class="bottom-row">
+        <div class="btn-row">
+          <button class="btn-primary" id="start">▶️ Iniciar</button>
+          <button class="btn-ghost" id="pause">⏸️ Pausar</button>
+          <button class="btn-ghost" id="reset">🔄 Reiniciar</button>
+          <button class="btn-ghost" id="fit" title="Ajustar a pantalla">📐 Ajustar a pantalla</button>
+        </div>
+
+        <div class="checkbox-inline">
+          <label><input type="checkbox" id="showPrediction" checked> Mostrar predicció teòrica</label>
+          <label><input type="checkbox" id="showTrail" checked> Mostrar rastre</label>
+        </div>
+      </div>
+
+      <div class="time-block">
+        <label>Temps (s): <span id="timeLabel">0.00</span></label>
+        <input id="timeSlider" type="range" min="0" max="1" value="0" step="0.001">
+      </div>
+
+      <div class="readouts">
+        <div class="readout-pill"><span class="label">t:</span> <span class="value" id="t">0.00</span> s</div>
+        <div class="readout-pill"><span class="label">x:</span> <span class="value" id="x">0.00</span> m</div>
+        <div class="readout-pill"><span class="label">y:</span> <span class="value" id="y">0.00</span> m</div>
+        <div class="readout-pill"><span class="label">|v|:</span> <span class="value" id="vmod">0.00</span> m/s</div>
+        <div class="readout-pill"><span class="label">Vx:</span> <span class="value" id="vx">0.00</span> m/s</div>
+        <div class="readout-pill"><span class="label">Vy:</span> <span class="value" id="vy">0.00</span> m/s</div>
+        <div class="readout-pill"><span class="label">θ:</span> <span class="value" id="theta">0.00</span> °</div>
+      </div>
     </div>
   </div>
 
-  <div class="panel"><canvas id="stage" width="1200" height="600"></canvas></div>
-</div>
+  <script>
+    (()=> {
+      const c = document.getElementById('stage'), ctx = c.getContext('2d');
+      const hgt = c.height, wid = c.width, margin = 40;
 
-<script>
-(()=> {
-  const c = document.getElementById('stage'), ctx = c.getContext('2d');
-  const hgt = c.height, wid = c.width, margin = 40;
+      const v = document.getElementById('v'),
+            angle = document.getElementById('angle'),
+            h = document.getElementById('h'),
+            fit = document.getElementById('fit');
 
-  const v = document.getElementById('v'), angle = document.getElementById('angle'), h = document.getElementById('h'), g = document.getElementById('g'), scale = document.getElementById('scale'), fit = document.getElementById('fit');
-  const showPrediction = document.getElementById('showPrediction'), showTrail = document.getElementById('showTrail');
+      const showPrediction = document.getElementById('showPrediction'),
+            showTrail = document.getElementById('showTrail');
 
-  const vVal = document.getElementById('vVal'), angleVal = document.getElementById('angleVal'), hVal = document.getElementById('hVal'), gVal = document.getElementById('gVal'), scaleVal = document.getElementById('scaleVal');
-  const start = document.getElementById('start'), pause = document.getElementById('pause'), reset = document.getElementById('reset'), timeSlider = document.getElementById('timeSlider');
-  const tR = document.getElementById('t'), xR = document.getElementById('x'), yR = document.getElementById('y'), vR = document.getElementById('vmod'), vxR = document.getElementById('vx'), vyR = document.getElementById('vy'), thetaR = document.getElementById('theta'), timeLabel = document.getElementById('timeLabel');
+      const start = document.getElementById('start'),
+            pause = document.getElementById('pause'),
+            reset = document.getElementById('reset'),
+            timeSlider = document.getElementById('timeSlider');
 
-  // 🔹 NUEVAS VARIABLES PARA VELOCIDAD DEL TIEMPO
-  const timeScale = document.getElementById('timeScale'), timeScaleVal = document.getElementById('timeScaleVal');
+      const tR = document.getElementById('t'),
+            xR = document.getElementById('x'),
+            yR = document.getElementById('y'),
+            vR = document.getElementById('vmod'),
+            vxR = document.getElementById('vx'),
+            vyR = document.getElementById('vy'),
+            thetaR = document.getElementById('theta'),
+            timeLabel = document.getElementById('timeLabel');
 
-  let trailPoints = [];
+      const timeScale = document.getElementById('timeScale'),
+            timeScaleVal = document.getElementById('timeScaleVal');
 
-  function upd(){
-    vVal.textContent = Number(v.value).toFixed(1);
-    angleVal.textContent = Number(angle.value).toFixed(1);
-    hVal.textContent = Number(h.value).toFixed(1);
-    gVal.textContent = Number(g.value).toFixed(1);
-    scaleVal.textContent = Number(scale.value).toFixed(0);
-    timeScaleVal.textContent = Number(timeScale.value).toFixed(2);
-  }
+      const G = 9.81;
 
-  function onParamChange(){
-    computeMaxT();
-    drawScene(curT);
-  }
+      let trailPoints = [];
+      let scaleFactor = 15;
+      let simMax = 1;
+      let running = false, last = null, simT = 0, curT = 0;
 
-  [v, angle, h, g].forEach(e => e.addEventListener('input', ()=>{ upd(); onParamChange(); }));
-  scale.addEventListener('input', ()=>{ trailPoints = []; upd(); onParamChange(); });
-  timeScale.addEventListener('input', upd);
+      function upd(){
+        timeScaleVal.textContent = Number(timeScale.value).toFixed(2);
+      }
 
-  upd();
+      function onParamChange(){
+        computeMaxT();
+        scaleFactor = autoZoom();
+        drawScene(curT);
+      }
 
-  function toRad(d){ return d * Math.PI / 180; }
+      [v, angle, h].forEach(e => e.addEventListener('input', onParamChange));
+      timeScale.addEventListener('input', upd);
+      upd();
 
-  function pos(t,p){
-    const vx = p.v0 * Math.cos(p.ang), vy = p.v0 * Math.sin(p.ang);
-    return {
-      x: vx * t,
-      y: p.h0 + vy * t - 0.5 * p.g * t * t,
-      vx: vx,
-      vy: vy - p.g * t,
-      speed: Math.hypot(vx, vy - p.g * t)
-    };
-  }
+      function toRad(d){ return d * Math.PI / 180; }
 
-  function flightTime(p){
-    const a = -0.5 * p.g, b = p.v0 * Math.sin(p.ang), c0 = p.h0;
-    const disc = b*b - 4*a*c0;
-    if (disc < 0) return 0;
-    const r1 = (-b + Math.sqrt(disc)) / (2*a), r2 = (-b - Math.sqrt(disc)) / (2*a);
-    return Math.max(r1, r2);
-  }
+      function pos(t,p){
+        const vx = p.v0 * Math.cos(p.ang), vy = p.v0 * Math.sin(p.ang);
+        return {
+          x: vx * t,
+          y: p.h0 + vy * t - 0.5 * p.g * t * t,
+          vx: vx,
+          vy: vy - p.g * t,
+          speed: Math.hypot(vx, vy - p.g * t)
+        };
+      }
 
-  function m2c(x,y){
-    const zoom = scale.value / 100;
-    const pxPerMeter = 100 * zoom;
-    return { cx: margin + x * pxPerMeter, cy: hgt - margin - y * pxPerMeter };
-  }
+      function flightTime(p){
+        const a = -0.5 * p.g, b = p.v0 * Math.sin(p.ang), c0 = p.h0;
+        const disc = b*b - 4*a*c0;
+        if (disc < 0) return 0;
+        const r1 = (-b + Math.sqrt(disc)) / (2*a),
+              r2 = (-b - Math.sqrt(disc)) / (2*a);
+        return Math.max(r1, r2);
+      }
 
-  function drawArrow(x1,y1,x2,y2,color){
-    ctx.save();
-    ctx.strokeStyle = color; ctx.fillStyle = color; ctx.lineWidth = 2;
-    ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
-    const ang = Math.atan2(y2 - y1, x2 - x1), head = 8;
-    ctx.beginPath();
-    ctx.moveTo(x2,y2);
-    ctx.lineTo(x2 - head * Math.cos(ang - Math.PI/6), y2 - head * Math.sin(ang - Math.PI/6));
-    ctx.lineTo(x2 - head * Math.cos(ang + Math.PI/6), y2 - head * Math.sin(ang + Math.PI/6));
-    ctx.closePath(); ctx.fill();
-    ctx.restore();
-  }
+      function m2c(x,y){
+        const pxPerMeter = scaleFactor;
+        return {
+          cx: margin + x * pxPerMeter,
+          cy: hgt - margin - y * pxPerMeter
+        };
+      }
 
-  function autoZoom(){
-    const p = { v0: +v.value, ang: toRad(+angle.value), h0: +h.value, g: +g.value };
-    const T = flightTime(p);
-    let maxX = 0, maxY = Math.max(0, p.h0);
-    const samples = 200;
-    for(let i=0;i<=samples;i++){
-      const P = pos(T * i / samples, p);
-      if(P.x > maxX) maxX = P.x;
-      if(P.y > maxY) maxY = P.y;
-    }
-    const safeMaxX = Math.max(1e-6, maxX);
-    const safeMaxY = Math.max(1e-6, maxY);
-    const zoomX = (wid - 2*margin) / (safeMaxX * 100);
-    const zoomY = (hgt - 2*margin) / (safeMaxY * 100);
-    let result = Math.min(zoomX, zoomY) * 100;
-    const minZ = Number(scale.min), maxZ = Number(scale.max);
-    if (!isFinite(result)) result = minZ;
-    result = Math.max(minZ, Math.min(maxZ, result));
-    return result;
-  }
+      function drawArrow(x1,y1,x2,y2,color){
+        ctx.save();
+        ctx.strokeStyle = color; ctx.fillStyle = color;
+        ctx.lineWidth = 3;                         // 🔹 més gruix
+        ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+        const ang = Math.atan2(y2 - y1, x2 - x1), head = 10;  // 🔹 capçal més gran
+        ctx.beginPath();
+        ctx.moveTo(x2,y2);
+        ctx.lineTo(x2 - head * Math.cos(ang - Math.PI/6), y2 - head * Math.sin(ang - Math.PI/6));
+        ctx.lineTo(x2 - head * Math.cos(ang + Math.PI/6), y2 - head * Math.sin(ang + Math.PI/6));
+        ctx.closePath(); ctx.fill();
+        ctx.restore();
+      }
 
-  fit.onclick = () => {
-    trailPoints = [];
-    const z = autoZoom();
-    scale.value = Math.round(z);
-    upd();
-    drawScene(curT);
-  };
+      function autoZoom(){
+        const p = { v0:+v.value, ang:toRad(+angle.value), h0:+h.value, g:G };
+        const T = flightTime(p);
+        let maxX = 0, maxY = Math.max(0,p.h0);
+        const samples = 200;
+        for(let i=0;i<=samples;i++){
+          const P = pos(T*i/samples, p);
+          if(P.x > maxX) maxX = P.x;
+          if(P.y > maxY) maxY = P.y;
+        }
+        const safeMaxX = Math.max(1e-6, maxX);
+        const safeMaxY = Math.max(1e-6, maxY);
+        const pxX = (wid - 2*margin) / safeMaxX;
+        const pxY = (hgt - 2*margin) / safeMaxY;
+        let result = Math.min(pxX, pxY);
+        if (!isFinite(result) || result <= 0) result = 5;
+        return result;
+      }
 
-  let simMax = 1;
-  function computeMaxT(){
-    const p = { v0: +v.value, ang: toRad(+angle.value), h0: +h.value, g: +g.value };
-    simMax = flightTime(p);
-    timeSlider.max = simMax.toFixed(3);
-  }
+      fit.onclick = () => {
+        trailPoints = [];
+        scaleFactor = autoZoom();
+        drawScene(curT);
+      };
 
-  function drawAxes(maxX,maxY){
-    ctx.strokeStyle='rgba(255,255,255,0.4)'; ctx.lineWidth = 2;
-    ctx.beginPath(); ctx.moveTo(0, hgt - margin); ctx.lineTo(wid, hgt - margin); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(margin, 0); ctx.lineTo(margin, hgt); ctx.stroke();
-    ctx.font = '15px sans-serif'; ctx.fillStyle = '#fff';
-    const stepX = Math.max(1, Math.ceil(maxX/10)), stepY = Math.max(1, Math.ceil(maxY/10));
-    for(let x = 0; x <= maxX; x += stepX){
-      const p = m2c(x, 0);
-      ctx.fillRect(p.cx, hgt - margin, 1, 5);
-      ctx.fillText(x.toFixed(0), p.cx - 8, hgt - margin + 15);
-    }
-    for(let y = stepY; y <= maxY; y += stepY){
-      const p = m2c(0, y);
-      ctx.fillRect(margin - 5, p.cy, 5, 1);
-      ctx.fillText(y.toFixed(0), margin - 28, p.cy + 4);
-    }
-  }
+      function computeMaxT(){
+        const p = { v0:+v.value, ang:toRad(+angle.value), h0:+h.value, g:G };
+        simMax = flightTime(p);
+        timeSlider.max = simMax.toFixed(3);
+      }
 
-  function drawPrediction(pms,T){
-    ctx.save(); ctx.setLineDash([6,6]); ctx.strokeStyle='rgba(89, 186, 186,0.6)'; ctx.lineWidth=2; ctx.beginPath();
-    const steps = 200;
-    for(let i=0;i<=steps;i++){
-      const P = pos(T * i / steps, pms);
-      const pt = m2c(P.x, Math.max(0, P.y));
-      if(i===0) ctx.moveTo(pt.cx, pt.cy); else ctx.lineTo(pt.cx, pt.cy);
-    }
-    ctx.stroke(); ctx.restore();
-  }
+      function drawAxes(maxX,maxY){
+        ctx.strokeStyle='rgba(148,163,184,0.7)';
+        ctx.lineWidth = 2.5;                                  // 🔹 una mica més gruixut
+        ctx.beginPath(); ctx.moveTo(0, hgt - margin); ctx.lineTo(wid, hgt - margin); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(margin, 0); ctx.lineTo(margin, hgt); ctx.stroke();
+        ctx.font = '15px system-ui, sans-serif';              // 🔹 números més grans
+        ctx.fillStyle = '#e5e7eb';
+        const stepX = Math.max(1, Math.ceil(maxX/10)),
+              stepY = Math.max(1, Math.ceil(maxY/10));
+        for(let x = 0; x <= maxX; x += stepX){
+          const p = m2c(x, 0);
+          ctx.fillRect(p.cx, hgt - margin, 1, 7);
+          ctx.fillText(x.toFixed(0), p.cx - 8, hgt - margin + 18);
+        }
+        for(let y = stepY; y <= maxY; y += stepY){
+          const p = m2c(0, y);
+          ctx.fillRect(margin - 7, p.cy, 7, 1);
+          ctx.fillText(y.toFixed(0), margin - 34, p.cy + 5);
+        }
+      }
 
-  function drawScene(t){
-    ctx.clearRect(0,0,wid,hgt);
-    const p = { v0: +v.value, ang: toRad(+angle.value), h0: +h.value, g: +g.value };
-    const T = flightTime(p);
+      function drawPrediction(pms,T){
+        ctx.save();
+        ctx.setLineDash([6,6]);
+        ctx.strokeStyle='rgba(96,165,250,0.8)';
+        ctx.lineWidth=3;                                     // 🔹 més gruixut
+        ctx.beginPath();
+        const steps = 200;
+        for(let i=0;i<=steps;i++){
+          const P = pos(T*i/steps, pms);
+          const pt = m2c(P.x, Math.max(0,P.y));
+          if(i===0) ctx.moveTo(pt.cx, pt.cy); else ctx.lineTo(pt.cx, pt.cy);
+        }
+        ctx.stroke();
+        ctx.restore();
+      }
 
-    let maxX = 0, maxY = Math.max(0, p.h0);
-    for(let i=0;i<=100;i++){
-      const P = pos(T * i / 100, p);
-      if(P.x > maxX) maxX = P.x;
-      if(P.y > maxY) maxY = P.y;
-    }
+      function drawScene(t){
+        ctx.clearRect(0,0,wid,hgt);
 
-    drawAxes(maxX * 1.1, Math.max(maxY * 1.1, 1));
-    if(showPrediction.checked) drawPrediction(p, T);
+        const p = { v0:+v.value, ang:toRad(+angle.value), h0:+h.value, g:G };
+        const T = flightTime(p);
 
-    const P = pos(t, p);
-    const pt = m2c(P.x, Math.max(0, P.y));
+        let maxX = 0, maxY = Math.max(0,p.h0);
+        for(let i=0;i<=100;i++){
+          const P = pos(T*i/100, p);
+          if(P.x > maxX) maxX = P.x;
+          if(P.y > maxY) maxY = P.y;
+        }
 
-    if(showTrail.checked && trailPoints.length > 0){
-      ctx.strokeStyle='rgba(255, 61, 120,0.4)'; ctx.lineWidth=2; ctx.beginPath();
-      trailPoints.forEach((q,i)=>{ if(i===0) ctx.moveTo(q.cx,q.cy); else ctx.lineTo(q.cx,q.cy); });
-      ctx.stroke();
-    }
+        ctx.fillStyle = '#020617';
+        ctx.fillRect(0,0,wid,hgt);
 
-    ctx.beginPath(); ctx.arc(pt.cx, pt.cy, 7, 0, Math.PI*2); ctx.fillStyle = '#38bdf8'; ctx.fill();
+        drawAxes(maxX*1.1, Math.max(maxY*1.1,1));
+        if(showPrediction.checked) drawPrediction(p,T);
 
-    ctx.setLineDash([4,4]); ctx.strokeStyle='rgba(255,255,255,0.3)';
-    ctx.beginPath(); ctx.moveTo(pt.cx, pt.cy); ctx.lineTo(pt.cx, hgt - margin); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(pt.cx, pt.cy); ctx.lineTo(margin, pt.cy); ctx.stroke();
-    ctx.setLineDash([]);
+        const P = pos(t,p);
+        const pt = m2c(P.x, Math.max(0,P.y));
 
-    ctx.fillStyle = '#fff';
-    ctx.fillText(`x=${P.x.toFixed(1)} m`, pt.cx - 28, hgt - margin - 15);
-    ctx.fillText(`y=${Math.max(0,P.y).toFixed(1)} m`, margin + 15, pt.cy - 6);
+        if(showTrail.checked && trailPoints.length > 0){
+          ctx.strokeStyle='rgba(244,114,182,0.8)';
+          ctx.lineWidth=3;
+          ctx.beginPath();
+          trailPoints.forEach((q,i)=>{ if(i===0) ctx.moveTo(q.cx,q.cy); else ctx.lineTo(q.cx,q.cy); });
+          ctx.stroke();
+        }
 
-    const zoom = scale.value / 100;
-    const f = Math.max(8, (100 * zoom) * 0.18);
-    const vxEnd = { x: pt.cx + P.vx * f, y: pt.cy };
-    const vyEnd = { x: pt.cx, y: pt.cy - P.vy * f };
-    const vEnd  = { x: pt.cx + P.vx * f, y: pt.cy - P.vy * f  };
+        // Punt del projectil més gran
+        ctx.beginPath();
+        ctx.arc(pt.cx, pt.cy, 9, 0, Math.PI*2);
+        ctx.fillStyle = '#60a5fa';
+        ctx.fill();
 
-    drawArrow(pt.cx, pt.cy, vxEnd.x, vxEnd.y, '#d5f476');
-    drawArrow(pt.cx, pt.cy, vyEnd.x, vyEnd.y, '#00a874');
-    drawArrow(pt.cx, pt.cy, vEnd.x, vEnd.y, '#ff3d78');
+        ctx.setLineDash([4,4]);
+        ctx.strokeStyle='rgba(148,163,184,0.5)';
+        ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.moveTo(pt.cx, pt.cy); ctx.lineTo(pt.cx, hgt - margin); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(pt.cx, pt.cy); ctx.lineTo(margin, pt.cy); ctx.stroke();
+        ctx.setLineDash([]);
 
-    ctx.font = '15px sans-serif';
-    ctx.fillStyle = '#d5f476'; ctx.fillText(`${P.vx.toFixed(1)} m/s`, vxEnd.x + 6, vxEnd.y + 5);
-    ctx.fillStyle = '#00a874'; ctx.fillText(`${P.vy.toFixed(1)} m/s`, vyEnd.x + 6, vyEnd.y - 2);
-    ctx.fillStyle = '#ff3d78'; ctx.fillText(`${P.speed.toFixed(1)} m/s`, vEnd.x + 6, vEnd.y - 2);
+        ctx.fillStyle = '#e5e7eb';
+        ctx.font = '15px system-ui, sans-serif';             // 🔹 etiquetes més grans
+        ctx.fillText(`x=${P.x.toFixed(1)} m`, pt.cx - 34, hgt - margin - 18);
+        ctx.fillText(`y=${Math.max(0,P.y).toFixed(1)} m`, margin + 18, pt.cy - 6);
 
-    tR.textContent = t.toFixed(2);
-    xR.textContent = P.x.toFixed(2);
-    yR.textContent = Math.max(0, P.y).toFixed(2);
-    vR.textContent = P.speed.toFixed(2);
-    vxR.textContent = P.vx.toFixed(2);
-    vyR.textContent = P.vy.toFixed(2);
-    thetaR.textContent = (Math.atan2(P.vy, P.vx) * 180 / Math.PI).toFixed(1);
-    timeLabel.textContent = t.toFixed(2);
-  }
+        // Escalat robust vectors
+        const maxComp = Math.max(Math.abs(P.vx), Math.abs(P.vy), P.speed, 1);
+        let fHigh = (Math.min(wid,hgt) * 0.3) / maxComp;
+        let fLow  = 0;
+        const minX = 12, maxXPix = wid - 12;
+        const minY = 12, maxYPix = hgt - 12;
 
-  let running = false, last = null, simT = 0, curT = 0;
-  computeMaxT();
+        function withinBounds(f){
+          const vecs = [
+            {vx:P.vx, vy:0},
+            {vx:0,   vy:P.vy},
+            {vx:P.vx,vy:P.vy}
+          ];
+          for(const vdir of vecs){
+            const ex = pt.cx + vdir.vx * f;
+            const ey = pt.cy - vdir.vy * f;
+            if(ex < minX || ex > maxXPix || ey < minY || ey > maxYPix) return false;
+          }
+          return true;
+        }
 
-  function loop(ts){
-    if(!running) return;
-    if(!last) last = ts;
-    const dt = (ts - last)/1000 * Number(timeScale.value);  // 🔹 factor de velocidad del tiempo
-    last = ts;
-    simT += dt;
-    if(simT > simMax){ simT = simMax; running = false; }
-    if(showTrail.checked){
-      const P = pos(simT, { v0: +v.value, ang: toRad(+angle.value), h0: +h.value, g: +g.value });
-      trailPoints.push(m2c(P.x, Math.max(0, P.y)));
-    }
-    timeSlider.value = simT;
-    curT = simT;
-    drawScene(simT);
-    requestAnimationFrame(loop);
-  }
+        if(!withinBounds(fHigh)){
+          for(let i=0;i<25;i++){
+            const mid = (fLow + fHigh)/2;
+            if(withinBounds(mid)) fLow = mid; else fHigh = mid;
+          }
+        } else {
+          fLow = fHigh;
+        }
 
-  start.onclick = () => { computeMaxT(); simT = 0; trailPoints = []; running = true; last = null; requestAnimationFrame(loop); };
-  pause.onclick = () => running = false;
-  reset.onclick = () => { running = false; simT = 0; trailPoints = []; drawScene(0); timeSlider.value = 0; };
-  timeSlider.oninput = e => { simT = +e.target.value; curT = simT; drawScene(simT); };
+        let f = fLow * 0.9;
+        const fMin = 6 / maxComp;
+        if(f < fMin) f = fMin;
 
-  computeMaxT();
-  drawScene(0);
+        const vxEnd = { x: pt.cx + P.vx * f, y: pt.cy };
+        const vyEnd = { x: pt.cx,             y: pt.cy - P.vy * f };
+        const vEnd  = { x: pt.cx + P.vx * f,  y: pt.cy - P.vy * f };
 
-})();
-</script>
+        drawArrow(pt.cx, pt.cy, vxEnd.x, vxEnd.y, '#a3e635');
+        drawArrow(pt.cx, pt.cy, vyEnd.x, vyEnd.y, '#22c55e');
+        drawArrow(pt.cx, pt.cy, vEnd.x,  vEnd.y,  '#f97373');
+
+        ctx.font = '14px system-ui, sans-serif';            // 🔹 valors velocitat una mica més grans
+        ctx.fillStyle = '#a3e635'; ctx.fillText(`${P.vx.toFixed(1)} m/s`, vxEnd.x + 6, vxEnd.y + 5);
+        ctx.fillStyle = '#22c55e'; ctx.fillText(`${P.vy.toFixed(1)} m/s`, vyEnd.x + 6, vyEnd.y - 2);
+        ctx.fillStyle = '#f97373'; ctx.fillText(`${P.speed.toFixed(1)} m/s`, vEnd.x + 6, vEnd.y - 2);
+
+        tR.textContent = t.toFixed(2);
+        xR.textContent = P.x.toFixed(2);
+        yR.textContent = Math.max(0,P.y).toFixed(2);
+        vR.textContent = P.speed.toFixed(2);
+        vxR.textContent = P.vx.toFixed(2);
+        vyR.textContent = P.vy.toFixed(2);
+        thetaR.textContent = (Math.atan2(P.vy, P.vx)*180/Math.PI).toFixed(1);
+        timeLabel.textContent = t.toFixed(2);
+      }
+
+      function loop(ts){
+        if(!running) return;
+        if(!last) last = ts;
+        const dt = (ts - last)/1000 * Number(timeScale.value);
+        last = ts;
+        simT += dt;
+        if(simT > simMax){ simT = simMax; running = false; }
+        if(showTrail.checked){
+          const P = pos(simT, {v0:+v.value, ang:toRad(+angle.value), h0:+h.value, g:G});
+          trailPoints.push(m2c(P.x, Math.max(0,P.y)));
+        }
+        timeSlider.value = simT;
+        curT = simT;
+        drawScene(simT);
+        requestAnimationFrame(loop);
+      }
+
+      start.onclick = () => {
+        computeMaxT();
+        scaleFactor = autoZoom();
+        simT = 0;
+        trailPoints = [];
+        running = true;
+        last = null;
+        requestAnimationFrame(loop);
+      };
+      pause.onclick = () => running = false;
+      reset.onclick = () => {
+        running = false;
+        simT = 0;
+        trailPoints = [];
+        drawScene(0);
+        timeSlider.value = 0;
+      };
+      timeSlider.oninput = e => {
+        simT = +e.target.value;
+        curT = simT;
+        drawScene(simT);
+      };
+
+      computeMaxT();
+      scaleFactor = autoZoom();
+      drawScene(0);
+    })();
+  </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
