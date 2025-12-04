@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <title>Simulador de tir parabòlic</title>
+  <!-- 🔹 Important per a que sigui realment responsive al mòbil -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     :root {
       --bg: #0b1226;
@@ -199,7 +201,7 @@
     #stage {
       width: 100%;
       height: auto;
-      max-height: 650px;       /* 🔹 una mica més alt */
+      max-height: 650px;
       border-radius: 10px;
       border: 1px solid rgba(148,163,184,0.4);
       background: #020617;
@@ -237,9 +239,45 @@
       color: #e5e7eb;
     }
 
+    /* 🔹 Ajustos responsive per a mòbil / tablet */
     @media (max-width: 768px) {
-      h1 { font-size: 1.2rem; }
-      .bottom-row { flex-direction: column; align-items: flex-start; }
+      body {
+        align-items: flex-start;
+        padding: 12px;
+      }
+      .card {
+        padding: 16px 14px 18px;
+        border-radius: 12px;
+      }
+      h1 {
+        font-size: 1.15rem;
+        flex-wrap: wrap;
+      }
+      .subtitle {
+        font-size: 0.85rem;
+      }
+      .controls-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+      }
+      .bottom-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+      }
+      .checkbox-inline {
+        align-items: flex-start;
+      }
+      .graph-card {
+        margin-top: 10px;
+        padding: 8px 10px 10px;
+      }
+      #stage {
+        max-height: 420px;
+      }
+      .readout-pill {
+        font-size: 0.78rem;
+      }
     }
   </style>
 </head>
@@ -289,7 +327,6 @@
       📈 Gràfic de la trajectòria
     </div>
     <div class="graph-card">
-      <!-- 🔹 Canvas una mica més gran -->
       <canvas id="stage" width="1440" height="720"></canvas>
 
       <div class="bottom-row">
@@ -407,9 +444,9 @@
       function drawArrow(x1,y1,x2,y2,color){
         ctx.save();
         ctx.strokeStyle = color; ctx.fillStyle = color;
-        ctx.lineWidth = 3;                         // 🔹 més gruix
+        ctx.lineWidth = 3;
         ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
-        const ang = Math.atan2(y2 - y1, x2 - x1), head = 10;  // 🔹 capçal més gran
+        const ang = Math.atan2(y2 - y1, x2 - x1), head = 10;
         ctx.beginPath();
         ctx.moveTo(x2,y2);
         ctx.lineTo(x2 - head * Math.cos(ang - Math.PI/6), y2 - head * Math.sin(ang - Math.PI/6));
@@ -451,10 +488,10 @@
 
       function drawAxes(maxX,maxY){
         ctx.strokeStyle='rgba(148,163,184,0.7)';
-        ctx.lineWidth = 2.5;                                  // 🔹 una mica més gruixut
+        ctx.lineWidth = 2.5;
         ctx.beginPath(); ctx.moveTo(0, hgt - margin); ctx.lineTo(wid, hgt - margin); ctx.stroke();
         ctx.beginPath(); ctx.moveTo(margin, 0); ctx.lineTo(margin, hgt); ctx.stroke();
-        ctx.font = '15px system-ui, sans-serif';              // 🔹 números més grans
+        ctx.font = '15px system-ui, sans-serif';
         ctx.fillStyle = '#e5e7eb';
         const stepX = Math.max(1, Math.ceil(maxX/10)),
               stepY = Math.max(1, Math.ceil(maxY/10));
@@ -474,7 +511,7 @@
         ctx.save();
         ctx.setLineDash([6,6]);
         ctx.strokeStyle='rgba(96,165,250,0.8)';
-        ctx.lineWidth=3;                                     // 🔹 més gruixut
+        ctx.lineWidth=3;
         ctx.beginPath();
         const steps = 200;
         for(let i=0;i<=steps;i++){
@@ -516,7 +553,6 @@
           ctx.stroke();
         }
 
-        // Punt del projectil més gran
         ctx.beginPath();
         ctx.arc(pt.cx, pt.cy, 9, 0, Math.PI*2);
         ctx.fillStyle = '#60a5fa';
@@ -530,11 +566,10 @@
         ctx.setLineDash([]);
 
         ctx.fillStyle = '#e5e7eb';
-        ctx.font = '15px system-ui, sans-serif';             // 🔹 etiquetes més grans
+        ctx.font = '15px system-ui, sans-serif';
         ctx.fillText(`x=${P.x.toFixed(1)} m`, pt.cx - 34, hgt - margin - 18);
         ctx.fillText(`y=${Math.max(0,P.y).toFixed(1)} m`, margin + 18, pt.cy - 6);
 
-        // Escalat robust vectors
         const maxComp = Math.max(Math.abs(P.vx), Math.abs(P.vy), P.speed, 1);
         let fHigh = (Math.min(wid,hgt) * 0.3) / maxComp;
         let fLow  = 0;
@@ -576,7 +611,7 @@
         drawArrow(pt.cx, pt.cy, vyEnd.x, vyEnd.y, '#22c55e');
         drawArrow(pt.cx, pt.cy, vEnd.x,  vEnd.y,  '#f97373');
 
-        ctx.font = '14px system-ui, sans-serif';            // 🔹 valors velocitat una mica més grans
+        ctx.font = '14px system-ui, sans-serif';
         ctx.fillStyle = '#a3e635'; ctx.fillText(`${P.vx.toFixed(1)} m/s`, vxEnd.x + 6, vxEnd.y + 5);
         ctx.fillStyle = '#22c55e'; ctx.fillText(`${P.vy.toFixed(1)} m/s`, vyEnd.x + 6, vyEnd.y - 2);
         ctx.fillStyle = '#f97373'; ctx.fillText(`${P.speed.toFixed(1)} m/s`, vEnd.x + 6, vEnd.y - 2);
