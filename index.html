@@ -129,13 +129,6 @@
       width: 100%;
     }
 
-    .time-scale-wrap {
-      max-width: 220px;
-    }
-    .time-scale-wrap label {
-      margin-bottom: 2px;
-    }
-
     .checkbox-inline {
       font-size: 0.85rem;
       color: var(--muted);
@@ -180,6 +173,22 @@
       display: flex;
       gap: 8px;
       flex-wrap: wrap;
+    }
+
+    .btn-and-speed {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 18px;
+      align-items: center;
+    }
+
+    .time-scale-inline {
+      min-width: 220px;
+      max-width: 280px;
+    }
+    .time-scale-inline label {
+      margin-bottom: 2px;
+      font-size: 0.85rem;
     }
 
     .bottom-row {
@@ -278,6 +287,13 @@
       .readout-pill {
         font-size: 0.78rem;
       }
+      .btn-and-speed {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+      .time-scale-inline {
+        width: 100%;
+      }
     }
   </style>
 </head>
@@ -294,7 +310,7 @@
       Simulador de tir parabòlic
     </h1>
     <p class="subtitle">
-      Introdueix la <strong>velocitat inicial</strong>, l’<strong>angle</strong> i l’<strong>alçada inicial</strong>.
+      Introdueix la <strong>velocitat inicial</strong>, l’<strong>alçada inicial</strong> i l’<strong>angle</strong>.
       El simulador representa la trajectòria, els vectors de velocitat i mostra les magnituds instantànies.
     </p>
 
@@ -308,18 +324,13 @@
       </div>
 
       <div>
-        <label>Angle inicial (°):</label>
-        <input id="angle" type="number" min="0" max="90" step="0.1" value="45">
-      </div>
-
-      <div>
         <label>Alçada inicial (m):</label>
         <input id="h" type="number" min="0" max="1000" step="0.1" value="0">
       </div>
 
-      <div class="time-scale-wrap">
-        <label>Velocitat de simulació: <span id="timeScaleVal">1.00</span>x</label>
-        <input id="timeScale" type="range" min="0.01" max="2" step="0.01" value="1">
+      <div>
+        <label>Angle inicial (°): <span id="angleVal">45.0</span>°</label>
+        <input id="angle" type="range" min="1" max="89" step="0.1" value="45">
       </div>
     </div>
 
@@ -330,11 +341,16 @@
       <canvas id="stage" width="1440" height="720"></canvas>
 
       <div class="bottom-row">
-        <div class="btn-row">
-          <button class="btn-primary" id="start">▶️ Iniciar</button>
-          <button class="btn-ghost" id="pause">⏸️ Pausar</button>
-          <button class="btn-ghost" id="reset">🔄 Reiniciar</button>
-          <button class="btn-ghost" id="fit" title="Ajustar a pantalla">📐 Ajustar a pantalla</button>
+        <div class="btn-and-speed">
+          <div class="btn-row">
+            <button class="btn-primary" id="start">▶️ Iniciar</button>
+            <button class="btn-ghost" id="pause">⏸️ Pausar</button>
+            <button class="btn-ghost" id="reset">🔄 Reiniciar</button>
+          </div>
+          <div class="time-scale-inline">
+            <label>Velocitat de simulació: <span id="timeScaleVal">1.00</span>x</label>
+            <input id="timeScale" type="range" min="0.01" max="2" step="0.01" value="1">
+          </div>
         </div>
 
         <div class="checkbox-inline">
@@ -367,8 +383,9 @@
 
       const v = document.getElementById('v'),
             angle = document.getElementById('angle'),
-            h = document.getElementById('h'),
-            fit = document.getElementById('fit');
+            h = document.getElementById('h');
+
+      const angleVal = document.getElementById('angleVal');
 
       const showPrediction = document.getElementById('showPrediction'),
             showTrail = document.getElementById('showTrail');
@@ -401,7 +418,12 @@
         timeScaleVal.textContent = Number(timeScale.value).toFixed(2);
       }
 
+      function updateAngleLabel() {
+        angleVal.textContent = Number(angle.value).toFixed(1);
+      }
+
       function onParamChange(){
+        updateAngleLabel();
         computeMaxT();
         scaleFactor = autoZoom();
         drawScene(curT);
@@ -410,6 +432,7 @@
       [v, angle, h].forEach(e => e.addEventListener('input', onParamChange));
       timeScale.addEventListener('input', upd);
       upd();
+      updateAngleLabel();
 
       function toRad(d){ return d * Math.PI / 180; }
 
@@ -474,12 +497,6 @@
         return result;
       }
 
-      fit.onclick = () => {
-        trailPoints = [];
-        scaleFactor = autoZoom();
-        drawScene(curT);
-      };
-
       function computeMaxT(){
         const p = { v0:+v.value, ang:toRad(+angle.value), h0:+h.value, g:G };
         simMax = flightTime(p);
@@ -488,10 +505,10 @@
 
       function drawAxes(maxX,maxY){
         ctx.strokeStyle='rgba(148,163,184,0.7)';
-        ctx.lineWidth = 2.5;
+        ctx.lineWidth = 3;
         ctx.beginPath(); ctx.moveTo(0, hgt - margin); ctx.lineTo(wid, hgt - margin); ctx.stroke();
         ctx.beginPath(); ctx.moveTo(margin, 0); ctx.lineTo(margin, hgt); ctx.stroke();
-        ctx.font = '15px system-ui, sans-serif';
+        ctx.font = '22px system-ui, sans-serif';
         ctx.fillStyle = '#e5e7eb';
         const stepX = Math.max(1, Math.ceil(maxX/10)),
               stepY = Math.max(1, Math.ceil(maxY/10));
@@ -560,13 +577,13 @@
 
         ctx.setLineDash([4,4]);
         ctx.strokeStyle='rgba(148,163,184,0.5)';
-        ctx.lineWidth = 2;
+        ctx.lineWidth = 3;
         ctx.beginPath(); ctx.moveTo(pt.cx, pt.cy); ctx.lineTo(pt.cx, hgt - margin); ctx.stroke();
         ctx.beginPath(); ctx.moveTo(pt.cx, pt.cy); ctx.lineTo(margin, pt.cy); ctx.stroke();
         ctx.setLineDash([]);
 
         ctx.fillStyle = '#e5e7eb';
-        ctx.font = '15px system-ui, sans-serif';
+        ctx.font = '22px system-ui, sans-serif';
         ctx.fillText(`x=${P.x.toFixed(1)} m`, pt.cx - 34, hgt - margin - 18);
         ctx.fillText(`y=${Math.max(0,P.y).toFixed(1)} m`, margin + 18, pt.cy - 6);
 
@@ -611,7 +628,7 @@
         drawArrow(pt.cx, pt.cy, vyEnd.x, vyEnd.y, '#22c55e');
         drawArrow(pt.cx, pt.cy, vEnd.x,  vEnd.y,  '#f97373');
 
-        ctx.font = '14px system-ui, sans-serif';
+        ctx.font = '22px system-ui, sans-serif';
         ctx.fillStyle = '#a3e635'; ctx.fillText(`${P.vx.toFixed(1)} m/s`, vxEnd.x + 6, vxEnd.y + 5);
         ctx.fillStyle = '#22c55e'; ctx.fillText(`${P.vy.toFixed(1)} m/s`, vyEnd.x + 6, vyEnd.y - 2);
         ctx.fillStyle = '#f97373'; ctx.fillText(`${P.speed.toFixed(1)} m/s`, vEnd.x + 6, vEnd.y - 2);
