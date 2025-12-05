@@ -5,17 +5,26 @@
   <title>Simulador de tir parabòlic</title>
   <!-- 🔹 Important per a que sigui realment responsive al mòbil -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Tipografies de marca: Paytone One + Urbanist -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Paytone+One&family=Urbanist:wght@300;400;600;700&display=swap" rel="stylesheet">
+
   <style>
     :root {
-      --bg: #0b1226;
-      --panel: #0e1530;
-      --accent: #60a5fa;
-      --accent2: #34d399;
-      --text: #e5e7eb;
-      --muted: #9ca3af;
-      --danger: #f97373;
-      --border: #334155;
+      /* Paleta inspirada en el manual de marca */
+      --lima: #d5f476;        /* Verd lima - fons general */
+      --blanc: #f9f8ef;     /* Blanc cru - targetes */
+      --fucsia: #ff3d78;    /* Fúcsia - accent principal */
+      --jade: #00a874;   /* Verd jade - accent secundari */
+      --text: #000000;      /* Text principal en negre */
+      --text2:  #1f2937;     /* Text suau gris fosc */
+      --danger: #ff3d78;    /* Fúcsia també per errors/avisos */
+      --border: #5c3a93;    /* Morat per a contorns */
+      --lila: #d5bef7;     /*lila claret*/
     }
+
     * { box-sizing: border-box; }
 
     body {
@@ -24,33 +33,37 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      background: radial-gradient(circle at top, #111827 0, #020617 40%);
-      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      background:
+        radial-gradient(circle at top left, #ffaac9 0, #d5f476 35%, #d5bef7 70%, #5c3a93 100%);
+      font-family: "Urbanist", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
       color: var(--text);
       padding: 16px;
     }
 
     .card {
-      background: rgba(15, 23, 42, 0.95);
-      border-radius: 16px;
+      background: var(--blanc);
+      border-radius: 18px;
       padding: 20px 24px 24px;
       max-width: 1100px;
       width: 100%;
-      box-shadow: 0 20px 45px rgba(0,0,0,0.5);
-      border: 1px solid rgba(148, 163, 184, 0.25);
+      box-shadow:
+        0 18px 35px rgba(0, 0, 0, 0.18),
+        0 0 0 2px rgba(0, 0, 0, 0.05);
+      border: 2px solid var(--border);
     }
 
+    /* 🔹 Logo capçalera */
     .logo-wrap {
       display: flex;
       justify-content: center;
-      margin-bottom: 12px;
+      margin-bottom: 20px;
     }
     .logo-wrap img {
-      max-width: 180px;
+      max-width: 200px;
       width: 100%;
       height: auto;
       display: block;
-      opacity: 0.95;
+      opacity: 0.9;
       transition: opacity 0.15s ease-out, transform 0.15s ease-out;
     }
     .logo-wrap img:hover {
@@ -58,29 +71,53 @@
       transform: translateY(-1px);
     }
 
+    /* 🔹 Logo final/imagotip */
+    .logo-footer {
+      margin-top: 35px;
+      display: flex;
+      justify-content: center;
+    }
+    .logo-footer img {
+      max-width: 50px;
+      width: 100%;
+      height: auto;
+      display: block;
+      opacity: 0.9;
+      transition: opacity 0.15s ease-out, transform 0.15s ease-out;
+    }
+    .logo-footer img:hover {
+      opacity: 1;
+      transform: translateY(-1px);
+    }
+
     h1 {
       margin: 0 0 8px;
-      font-size: 1.4rem;
+      font-size: 1.5rem;
       display: flex;
       align-items: center;
       gap: 8px;
+      font-family: "Paytone One", system-ui, sans-serif;
+      letter-spacing: 0.02em;
     }
     h1 span {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      width: 26px;
-      height: 26px;
+      width: 28px;
+      height: 28px;
       border-radius: 999px;
-      background: radial-gradient(circle at 30% 30%, var(--accent2), var(--accent));
+      background: var(--jade);
       font-weight: 700;
-      font-size: 0.9rem;
-      color: #0b1120;
+      font-size: 1rem;
+      color: #ffffff;
+      box-shadow: 0 0 0 2px #ffffff;
     }
+
     .subtitle {
       margin: 0 0 16px;
-      font-size: 0.9rem;
-      color: var(--muted);
+      font-size: 0.95rem;
+      color: var(--text2);
+      line-height: 1.5;
     }
 
     .pill {
@@ -88,11 +125,14 @@
       align-items: center;
       gap: 6px;
       font-size: 0.78rem;
-      padding: 4px 9px;
+      padding: 4px 10px;
       border-radius: 999px;
-      background: rgba(15, 118, 110, 0.18);
-      color: #6ee7b7;
+      background: #00a8741f; /* verd jade molt suau */
+      color: var(--jade);
       margin-bottom: 8px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
     }
 
     .controls-grid {
@@ -107,35 +147,43 @@
       display: block;
       font-size: 0.9rem;
       margin-bottom: 4px;
-      color: var(--muted);
+      color: var(--text2);
+      font-weight: 500;
     }
+
     input[type="number"] {
       width: 100%;
       padding: 8px 10px;
-      border-radius: 8px;
-      border: 1px solid var(--border);
-      background: #020617;
-      color: #e5e7eb;
+      border-radius: 10px;
+      border: 1.5px solid rgba(0, 0, 0, 0.12);
+      background: #ffffff;
+      color: var(--text);
       font-size: 0.9rem;
       outline: none;
-      transition: border 0.15s, box-shadow 0.15s, background 0.15s;
+      transition: border 0.15s, box-shadow 0.15s, background 0.15s, transform 0.08s;
     }
     input[type="number"]:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 1px rgba(96,165,250,0.6);
-      background: #020617;
+      border-color: var(--fucsia);
+      box-shadow: 0 0 0 2px rgba(255, 61, 120, 0.25);
+      background: #ffffff;
+      transform: translateY(-1px);
     }
+
     input[type="range"] {
       width: 100%;
+      accent-color: var(--fucsia);
     }
 
     .checkbox-inline {
       font-size: 0.85rem;
-      color: var(--muted);
+      color: var(--text2);
       display: flex;
       flex-wrap: wrap;
       gap: 12px 18px;
       align-items: center;
+    }
+    .checkbox-inline input[type="checkbox"] {
+      accent-color: var(--jade);
     }
 
     button {
@@ -143,29 +191,38 @@
       border: none;
       padding: 8px 16px;
       font-size: 0.9rem;
-      font-weight: 600;
+      font-weight: 700;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      transition: transform 0.08s ease-out, box-shadow 0.12s ease-out, background 0.15s, border 0.15s;
+      transition:
+        transform 0.08s ease-out,
+        box-shadow 0.12s ease-out,
+        background 0.15s,
+        border 0.15s;
+      font-family: "Urbanist", system-ui, sans-serif;
     }
+
     .btn-primary {
-      background: linear-gradient(135deg, var(--accent), #3b82f6);
-      color: #0b1120;
-      box-shadow: 0 10px 20px rgba(37, 99, 235, 0.35);
+      background: linear-gradient(135deg, var(--fucsia), #ff7ca5);
+      color: #ffffff;
+      box-shadow: none;
     }
     .btn-primary:hover {
       transform: translateY(-1px);
-      box-shadow: 0 14px 26px rgba(37, 99, 235, 0.45);
+      box-shadow: 0 14px 22px rgba(255, 61, 120, 0.46);
     }
+
     .btn-ghost {
-      background: transparent;
-      color: var(--text);
-      border: 1px solid rgba(148, 163, 184, 0.4);
+      background: #ffffff;
+      color: var(--text2);
+      border: 1.5px solid rgba(0, 0, 0, 0.15);
     }
     .btn-ghost:hover {
-      background: rgba(15,23,42,0.9);
+      background: #ffaac91f;
+      border-color: var(--fucsia);
+      color: var(--fucsia);
       transform: translateY(-1px);
     }
 
@@ -201,18 +258,20 @@
     }
 
     .graph-card {
-      border-radius: 12px;
+      border-radius: 14px;
       padding: 10px 12px 12px;
       margin-top: 14px;
-      background: rgba(15,23,42,0.9);
-      border: 1px solid rgba(148, 163, 184, 0.35);
+      background: #ffffff;
+      border: 1.5px solid rgba(0, 0, 0, 0.12);
+      box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08);
     }
+
     #stage {
       width: 100%;
       height: auto;
       max-height: 650px;
       border-radius: 10px;
-      border: 1px solid rgba(148,163,184,0.4);
+      border: 1px solid rgba(0, 0, 0, 0.15);
       background: #020617;
       display: block;
     }
@@ -230,6 +289,7 @@
       gap: 6px;
       margin-top: 10px;
     }
+
     .readout-pill {
       display: inline-flex;
       align-items: center;
@@ -237,15 +297,16 @@
       font-size: 0.8rem;
       padding: 4px 9px;
       border-radius: 999px;
-      background: rgba(30, 64, 175, 0.3);
-      color: #e5e7eb;
+      background: #d5bef7;
+      color: #000000;
+      border: 1px solid rgba(0, 0, 0, 0.1);
     }
     .readout-pill span.label {
-      color: var(--muted);
+      color: var(--text2);
     }
     .readout-pill span.value {
-      font-weight: 600;
-      color: #e5e7eb;
+      font-weight: 700;
+      color: #000000;
     }
 
     /* 🔹 Ajustos responsive per a mòbil / tablet */
@@ -256,14 +317,14 @@
       }
       .card {
         padding: 16px 14px 18px;
-        border-radius: 12px;
+        border-radius: 14px;
       }
       h1 {
-        font-size: 1.15rem;
+        font-size: 1.25rem;
         flex-wrap: wrap;
       }
       .subtitle {
-        font-size: 0.85rem;
+        font-size: 0.9rem;
       }
       .controls-grid {
         grid-template-columns: 1fr;
@@ -301,7 +362,7 @@
   <div class="card">
     <div class="logo-wrap">
       <a href="https://www.larrelacademia.cat/" target="_blank" rel="noopener noreferrer">
-        <img src="https://i.ibb.co/Q7YJTwgn/PRINCIPAL-BEIGE.png" alt="L'Arrel Acadèmia - Logo" />
+        <img src="https://i.ibb.co/TDpf3BHr/PRINCIPAL-FUCSIA.png" alt="L'Arrel Acadèmia - Logo principal fúcsia" />
       </a>
     </div>
 
@@ -315,7 +376,7 @@
     </p>
 
     <div class="pill">
-      ⚙️ Paràmetres inicials del tir
+      <strong>⚙️ Paràmetres inicials del tir</strong>
     </div>
     <div class="controls-grid">
       <div>
@@ -335,7 +396,7 @@
     </div>
 
     <div class="pill">
-      📈 Gràfic de la trajectòria
+      <strong>📈 Gràfic de la trajectòria</strong>
     </div>
     <div class="graph-card">
       <canvas id="stage" width="1440" height="720"></canvas>
@@ -374,7 +435,13 @@
         <div class="readout-pill"><span class="label">θ:</span> <span class="value" id="theta">0.00</span> °</div>
       </div>
     </div>
-  </div>
+
+    <!-- 🔹 Logo final (imagotip) -->
+    <div class="logo-footer">
+  <a href="https://www.larrelacademia.cat/" target="_blank" rel="noopener noreferrer">
+    <img src="https://i.ibb.co/PvJdJ31H/IMAGOTIP-FUCSIA.png" alt="L'Arrel Acadèmia - Imagotip fúcsia" />
+  </a>
+</div>
 
   <script>
     (()=> {
@@ -504,18 +571,18 @@
       }
 
       function drawAxes(maxX,maxY){
-        ctx.strokeStyle='rgba(148,163,184,0.7)';
+        ctx.strokeStyle='rgba(245, 245, 245, 0.9)';
         ctx.lineWidth = 3;
         ctx.beginPath(); ctx.moveTo(0, hgt - margin); ctx.lineTo(wid, hgt - margin); ctx.stroke();
         ctx.beginPath(); ctx.moveTo(margin, 0); ctx.lineTo(margin, hgt); ctx.stroke();
         ctx.font = '22px system-ui, sans-serif';
-        ctx.fillStyle = '#e5e7eb';
+        ctx.fillStyle = '#f9fafb';
         const stepX = Math.max(1, Math.ceil(maxX/10)),
               stepY = Math.max(1, Math.ceil(maxY/10));
         for(let x = 0; x <= maxX; x += stepX){
           const p = m2c(x, 0);
           ctx.fillRect(p.cx, hgt - margin, 1, 7);
-          ctx.fillText(x.toFixed(0), p.cx - 8, hgt - margin + 18);
+          ctx.fillText(x.toFixed(0), p.cx - 8, hgt - margin + 30);
         }
         for(let y = stepY; y <= maxY; y += stepY){
           const p = m2c(0, y);
@@ -527,7 +594,7 @@
       function drawPrediction(pms,T){
         ctx.save();
         ctx.setLineDash([6,6]);
-        ctx.strokeStyle='rgba(96,165,250,0.8)';
+        ctx.strokeStyle='#d5bef7';
         ctx.lineWidth=3;
         ctx.beginPath();
         const steps = 200;
@@ -553,7 +620,7 @@
           if(P.y > maxY) maxY = P.y;
         }
 
-        ctx.fillStyle = '#020617';
+        ctx.fillStyle = '#322d36';
         ctx.fillRect(0,0,wid,hgt);
 
         drawAxes(maxX*1.1, Math.max(maxY*1.1,1));
@@ -582,7 +649,7 @@
         ctx.beginPath(); ctx.moveTo(pt.cx, pt.cy); ctx.lineTo(margin, pt.cy); ctx.stroke();
         ctx.setLineDash([]);
 
-        ctx.fillStyle = '#e5e7eb';
+        ctx.fillStyle = '#f9fafb';
         ctx.font = '22px system-ui, sans-serif';
         ctx.fillText(`x=${P.x.toFixed(1)} m`, pt.cx - 34, hgt - margin - 18);
         ctx.fillText(`y=${Math.max(0,P.y).toFixed(1)} m`, margin + 18, pt.cy - 6);
@@ -624,14 +691,14 @@
         const vyEnd = { x: pt.cx,             y: pt.cy - P.vy * f };
         const vEnd  = { x: pt.cx + P.vx * f,  y: pt.cy - P.vy * f };
 
-        drawArrow(pt.cx, pt.cy, vxEnd.x, vxEnd.y, '#a3e635');
-        drawArrow(pt.cx, pt.cy, vyEnd.x, vyEnd.y, '#22c55e');
-        drawArrow(pt.cx, pt.cy, vEnd.x,  vEnd.y,  '#f97373');
+        drawArrow(pt.cx, pt.cy, vxEnd.x, vxEnd.y, '#d5f476');
+        drawArrow(pt.cx, pt.cy, vyEnd.x, vyEnd.y, '#00a874');
+        drawArrow(pt.cx, pt.cy, vEnd.x,  vEnd.y,  '#ff3d78');
 
         ctx.font = '22px system-ui, sans-serif';
-        ctx.fillStyle = '#a3e635'; ctx.fillText(`${P.vx.toFixed(1)} m/s`, vxEnd.x + 6, vxEnd.y + 5);
-        ctx.fillStyle = '#22c55e'; ctx.fillText(`${P.vy.toFixed(1)} m/s`, vyEnd.x + 6, vyEnd.y - 2);
-        ctx.fillStyle = '#f97373'; ctx.fillText(`${P.speed.toFixed(1)} m/s`, vEnd.x + 6, vEnd.y - 2);
+        ctx.fillStyle = '#d5f476'; ctx.fillText(`${P.vx.toFixed(1)} m/s`, vxEnd.x + 6, vxEnd.y + 5);
+        ctx.fillStyle = '#00a874'; ctx.fillText(`${P.vy.toFixed(1)} m/s`, vyEnd.x + 6, vyEnd.y - 2);
+        ctx.fillStyle = '#ff3d78'; ctx.fillText(`${P.speed.toFixed(1)} m/s`, vEnd.x + 6, vEnd.y - 2);
 
         tR.textContent = t.toFixed(2);
         xR.textContent = P.x.toFixed(2);
