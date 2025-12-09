@@ -23,6 +23,7 @@
       --danger: #ff3d78;    /* Fúcsia també per errors/avisos */
       --border: #5c3a93;    /* Morat per a contorns */
       --lila: #d5bef7;     /*lila claret*/
+      --muted: #6b7280;    /* Text peu de pàgina */
     }
 
     * { box-sizing: border-box; }
@@ -71,11 +72,12 @@
       transform: translateY(-1px);
     }
 
-    /* 🔹 Logo final/imagotip */
+    /* 🔹 Logo final/imagotip (igual que a la llista de simuladors) */
     .logo-footer {
-      margin-top: 35px;
+      margin-top: 2px;
       display: flex;
       justify-content: center;
+      margin-bottom: 11px;
     }
     .logo-footer img {
       max-width: 50px;
@@ -309,6 +311,20 @@
       color: #000000;
     }
 
+    /* 🔹 Footer línia + text legal (igual que a la llista de simuladors) */
+    .footer {
+      margin-top: 20px;
+      font-size: 0.78rem;
+      color: var(--muted);
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+      border-top: 1px solid rgba(148, 163, 184, 0.4);
+      padding-top: 10px;
+      min-height: 14px;
+    }
+
     /* 🔹 Ajustos responsive per a mòbil / tablet */
     @media (max-width: 768px) {
       body {
@@ -354,6 +370,10 @@
       }
       .time-scale-inline {
         width: 100%;
+      }
+      .footer {
+        flex-direction: column;
+        font-size: 0.75rem;
       }
     }
   </style>
@@ -436,12 +456,20 @@
       </div>
     </div>
 
-    <!-- 🔹 Logo final (imagotip) -->
+    <!-- Footer amb la línia, imagotip i text legal -->
+    <div class="footer"></div>
+
     <div class="logo-footer">
-  <a href="https://www.larrelacademia.cat/" target="_blank" rel="noopener noreferrer">
-    <img src="https://i.ibb.co/PvJdJ31H/IMAGOTIP-FUCSIA.png" alt="L'Arrel Acadèmia - Imagotip fúcsia" />
-  </a>
-</div>
+      <a href="https://www.larrelacademia.cat/" target="_blank" rel="noopener noreferrer">
+        <img src="https://i.ibb.co/PvJdJ31H/IMAGOTIP-FUCSIA.png" alt="L'Arrel Acadèmia - Imagotip fúcsia" />
+      </a>
+    </div>
+
+    <div style="text-align:center; margin-top:6px; font-size:0.75rem; color:var(--muted);">
+      © <span id="year2"></span> L'Arrel Acadèmia · Simuladors educatius
+    </div>
+
+  </div>
 
   <script>
     (()=> {
@@ -575,7 +603,7 @@
         ctx.lineWidth = 3;
         ctx.beginPath(); ctx.moveTo(0, hgt - margin); ctx.lineTo(wid, hgt - margin); ctx.stroke();
         ctx.beginPath(); ctx.moveTo(margin, 0); ctx.lineTo(margin, hgt); ctx.stroke();
-        ctx.font = '22px system-ui, sans-serif';
+        ctx.font = '25px system-ui, sans-serif';
         ctx.fillStyle = '#f9fafb';
         const stepX = Math.max(1, Math.ceil(maxX/10)),
               stepY = Math.max(1, Math.ceil(maxY/10));
@@ -595,7 +623,7 @@
         ctx.save();
         ctx.setLineDash([6,6]);
         ctx.strokeStyle='#d5bef7';
-        ctx.lineWidth=3;
+        ctx.lineWidth = 3;
         ctx.beginPath();
         const steps = 200;
         for(let i=0;i<=steps;i++){
@@ -650,7 +678,7 @@
         ctx.setLineDash([]);
 
         ctx.fillStyle = '#f9fafb';
-        ctx.font = '22px system-ui, sans-serif';
+        ctx.font = '25px system-ui, sans-serif';
         ctx.fillText(`x=${P.x.toFixed(1)} m`, pt.cx - 34, hgt - margin - 18);
         ctx.fillText(`y=${Math.max(0,P.y).toFixed(1)} m`, margin + 18, pt.cy - 6);
 
@@ -695,7 +723,7 @@
         drawArrow(pt.cx, pt.cy, vyEnd.x, vyEnd.y, '#00a874');
         drawArrow(pt.cx, pt.cy, vEnd.x,  vEnd.y,  '#ff3d78');
 
-        ctx.font = '22px system-ui, sans-serif';
+        ctx.font = '25px system-ui, sans-serif';
         ctx.fillStyle = '#d5f476'; ctx.fillText(`${P.vx.toFixed(1)} m/s`, vxEnd.x + 6, vxEnd.y + 5);
         ctx.fillStyle = '#00a874'; ctx.fillText(`${P.vy.toFixed(1)} m/s`, vyEnd.x + 6, vyEnd.y - 2);
         ctx.fillStyle = '#ff3d78'; ctx.fillText(`${P.speed.toFixed(1)} m/s`, vEnd.x + 6, vEnd.y - 2);
@@ -754,6 +782,11 @@
       scaleFactor = autoZoom();
       drawScene(0);
     })();
+  </script>
+
+  <script>
+    // Any actual al peu de pàgina
+    document.getElementById('year2').textContent = new Date().getFullYear();
   </script>
 </body>
 </html>
