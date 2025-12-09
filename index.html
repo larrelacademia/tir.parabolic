@@ -281,6 +281,15 @@
       display: block;
     }
 
+    .sim-controls {
+      margin-top: 14px;
+      border-radius: 14px;
+      padding: 10px 12px 12px;
+      background: #ffffff;
+      border: 1.5px solid rgba(0, 0, 0, 0.12);
+      box-shadow: 0 6px 14px rgba(0, 0, 0, 0.06);
+    }
+
     .time-block {
       margin-top: 10px;
     }
@@ -423,7 +432,9 @@
     </div>
     <div class="graph-card">
       <canvas id="stage" width="1440" height="720"></canvas>
+    </div>
 
+    <div class="sim-controls">
       <div class="bottom-row">
         <div class="btn-and-speed">
           <div class="btn-row">
@@ -449,13 +460,13 @@
       </div>
 
       <div class="readouts">
-        <div class="readout-pill"><span class="label">t:</span> <span class="value" id="t">0.00</span> s</div>
-        <div class="readout-pill"><span class="label">x:</span> <span class="value" id="x">0.00</span> m</div>
-        <div class="readout-pill"><span class="label">y:</span> <span class="value" id="y">0.00</span> m</div>
-        <div class="readout-pill"><span class="label">|v|:</span> <span class="value" id="vmod">0.00</span> m/s</div>
-        <div class="readout-pill"><span class="label">Vx:</span> <span class="value" id="vx">0.00</span> m/s</div>
-        <div class="readout-pill"><span class="label">Vy:</span> <span class="value" id="vy">0.00</span> m/s</div>
-        <div class="readout-pill"><span class="label">θ:</span> <span class="value" id="theta">0.00</span> °</div>
+        <div class="readout-pill"><span class="label">t =</span> <span class="value" id="t">0.00</span> s</div>
+        <div class="readout-pill"><span class="label">x =</span> <span class="value" id="x">0.00</span> m</div>
+        <div class="readout-pill"><span class="label">y =</span> <span class="value" id="y">0.00</span> m</div>
+        <div class="readout-pill"><span class="label">|v| =</span> <span class="value" id="vmod">0.00</span> m/s</div>
+        <div class="readout-pill"><span class="label">Vx =</span> <span class="value" id="vx">0.00</span> m/s</div>
+        <div class="readout-pill"><span class="label">Vy =</span> <span class="value" id="vy">0.00</span> m/s</div>
+        <div class="readout-pill"><span class="label">α =</span> <span class="value" id="theta">0.00</span> °</div>
       </div>
     </div>
 
@@ -793,5 +804,4 @@
   </script>
 </body>
 </html>
-
 
